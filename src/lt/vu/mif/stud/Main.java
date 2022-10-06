@@ -1,7 +1,7 @@
 package lt.vu.mif.stud;
 
 import java.io.*;
-import java.security.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Main {
@@ -16,8 +16,26 @@ public class Main {
             long start = new Date().getTime();
             String hash = Hashing.hash(inputString.toString());
             long end = new Date().getTime();
-            System.out.println("Time: " + (end-start) + " msec");
+            System.out.println("Time: " + (end - start) + " msec");
             System.out.println(hash);
+        } else if (args[0].equals("-hs")) { //hash strings separately
+            long start = new Date().getTime();
+            ArrayList<String> convertedHashes = new ArrayList<>();
+            int numberOfStrings = 0;
+            for (int i = 1; i < args.length; i++) {
+                String[] strings = readInputStreamSeparateWords(args[i]);
+                for (String string : strings) {
+                    String hash = Hashing.hash(string);
+                    convertedHashes.add(hash);
+                }
+                numberOfStrings = strings.length;
+            }
+            long end = new Date().getTime();
+            System.out.println("Number of strings in file: " + numberOfStrings);
+            System.out.println("Time: " + (end - start) + " msec");
+            System.out.println("Checking for duplicates");
+            String s = DataGenerator.checkForDuplicates(convertedHashes);
+            System.out.println("finished");
         } else if (args[0].equals("-f")) {
             for (int i = 1; i < args.length; i++) {
                 System.out.println("Hash from file " + args[i] + ":");
@@ -35,8 +53,7 @@ public class Main {
         try {
             File file = new File(fileName);
             InputStream inputStream = new FileInputStream(file);
-            BufferedReader br
-                    = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = br.readLine()) != null) {
                 resultStringBuilder.append(line).append("\n");
@@ -46,12 +63,8 @@ public class Main {
         }
         return resultStringBuilder.toString();
     }
-}
 
-//-f files-for-testing/1-Only-one-char-difference/test.txt
-//files-for-testing/1-Only-one-char-difference/test2.txt
-//files-for-testing/2-1000-char-files/test.txt
-//files-for-testing/2-1000-char-files/test2.txt
-//files-for-testing/3-1000-char-files-1-char-difference/test.txt
-//files-for-testing/3-1000-char-files-1-char-difference/test2.txt
-//files-for-testing/4-Empty-file/test.txt
+    private static String[] readInputStreamSeparateWords(String fileName) {
+        return readFromInputStream(fileName).split(" ");
+    }
+}
